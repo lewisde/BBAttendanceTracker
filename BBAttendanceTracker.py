@@ -1,9 +1,8 @@
 from PyQt5 import QtWidgets
 from PyQt5 import QtNetwork
 
-# from attendance import Ui_Dialog
-from untitled2 import Ui_MainWindow
-import json
+from attendance import Ui_MainWindow
+
 import sys
 import os
 
