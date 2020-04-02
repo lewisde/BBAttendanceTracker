@@ -107,9 +107,15 @@
         </property>
         <item>
          <widget class="QComboBox" name="comboClasses">
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>0</height>
+           </size>
+          </property>
           <property name="font">
            <font>
-            <pointsize>18</pointsize>
+            <pointsize>17</pointsize>
            </font>
           </property>
           <item>
@@ -525,18 +531,46 @@
    <property name="defaultUp">
     <bool>true</bool>
    </property>
+   <property name="nativeMenuBar">
+    <bool>true</bool>
+   </property>
    <widget class="QMenu" name="menuBBAttendanceTracker">
     <property name="title">
      <string>BBAttendanceTracker</string>
     </property>
-    <addaction name="actionEdit_BB_Address"/>
+    <widget class="QMenu" name="menuBlackboard_Address">
+     <property name="title">
+      <string>Blackboard Address</string>
+     </property>
+     <addaction name="actionEditAddress"/>
+    </widget>
+    <widget class="QMenu" name="menuLate_Threshold">
+     <property name="title">
+      <string>Late Threshold</string>
+     </property>
+     <addaction name="actionEditLate"/>
+    </widget>
+    <addaction name="menuBlackboard_Address"/>
+    <addaction name="menuLate_Threshold"/>
+    <addaction name="separator"/>
+    <addaction name="actionQuit"/>
    </widget>
    <addaction name="menuBBAttendanceTracker"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
-  <action name="actionEdit_BB_Address">
+  <action name="actionQuit">
    <property name="text">
-    <string>Blackboard Address</string>
+    <string>Quit</string>
+   </property>
+  </action>
+  <action name="actionEditAddress">
+   <property name="text">
+    <string>http://blackboard.olivetcollege.edu</string>
+   </property>
+  </action>
+  <action name="actionEditLate">
+   <property name="text">
+    <string>10 minutes</string>
    </property>
   </action>
  </widget>
