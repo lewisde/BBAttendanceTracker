@@ -32,6 +32,9 @@ class mywindow(QtWidgets.QMainWindow):
         header.setSectionResizeMode(4, QtWidgets.QHeaderView.Stretch)
         header.setSectionResizeMode(5, QtWidgets.QHeaderView.Stretch)
         self.ui.btnLogin.clicked.connect(self.onBtnLogin)
+        self.ui.comboClasses.currentTextChanged.connect(self.selectClass)
+        self.ui.btnSubmit.clicked.connect(self.uploadAttendance)
+        self.ui.btnLogout.clicked.connect(self.logout)
         self.ui.actionEditAddress.triggered.connect(self.Edit_BB_Address)
         self.ui.actionEditLate.triggered.connect(self.Edit_Late_Threshold)
         self.ui.actionQuit.triggered.connect(self.quit)
@@ -43,33 +46,48 @@ class mywindow(QtWidgets.QMainWindow):
                 a = line.strip().split(":")
                 d[a[0]] = a[1]
         self.bb_address = d['bb_address']
-        self.late_threshold = d["late_threshold"]
+        self.late_threshold = int(d["late_threshold"])
         self.app_key = d["app_key"]
         self.app_id = d["app_id"]
         self.secret = d["secret"]
         self.ui.actionEditAddress.setText(self.bb_address)
         self.ui.actionEditLate.setText(str(self.late_threshold) + " minutes")
-        self.ui.txtLateTime.setText(self.update_time_display(int(self.late_threshold)))
+        self.ui.txtLateTime.setText(
+            self.update_time_display(self.late_threshold))
         self.ui.txtEndTime.setText(self.update_time_display(80))
 
+    def closeEvent(self, event):
+        with open("offline", "w") as f:
+            f.write(f"bb_address:{self.bb_address}\n")
+            f.write(f"late_threshold:{self.late_threshold}\n")
+            f.write(f"app_key:{self.app_key}\n")
+            f.write(f"app_id:{self.app_id}\n")
+            f.write(f"secret:{self.secret}\n")
 
     def update_time_display(self, difference):
         start_time = self.ui.txtStartTime.text().split(":")
+        now = datetime.now()
         start_hour = int(start_time[0])
         start_minute = int(start_time[1].split(" ")[0])
+        now = datetime
         ampm = start_time[1].split(" ")[1]
         length = self.late_threshold
         latehour = start_hour + (difference // 60)
         lateminute = start_minute + (difference % 60)
         latehour += lateminute // 60
+        if latehour > 11:
+            ampm = "PM"
+        else:
+            ampm = "AM"
         lateminute = lateminute % 60
         latehour = latehour % 24
-        if lateminute == 0:
-            return(str(latehour) + ":00" + " " + ampm)
-        else:
-            return(str(latehour) + ":" + str(lateminute) + " " + ampm)
-        
-        
+        if latehour < 1:
+            latehour = 1
+            ampm = "AM"
+
+        time = f"{latehour}:{lateminute:02} {ampm}"
+        return(time)
+
     def Edit_BB_Address(self):
         self.dialog = QDialog(self)
         self.dialog.buttonBox = QtWidgets.QDialogButtonBox(self.dialog)
@@ -114,22 +132,7 @@ class mywindow(QtWidgets.QMainWindow):
 
     def late_accept(self):
         self.late_threshold = int(self.dialog.lineEdit.text())
-        start_time = self.ui.txtStartTime.text().split(":")
-
-        start_hour = int(start_time[0])
-        start_minute = int(start_time[1].split(" ")[0])
-        ampm = start_time[1].split(" ")[1]
-        length = self.late_threshold
-        latehour = start_hour + (length // 60)
-        lateminute = start_minute + (length % 60)
-        latehour += lateminute // 60
-        lateminute = lateminute % 60
-        latehour = latehour % 24
-        if lateminute == 0:
-            self.ui.txtLateTime.setText(str(latehour) + ":00" + " " + ampm)
-        else:
-            self.ui.txtLateTime.setText(
-                str(latehour) + ":" + str(lateminute) + " " + ampm)
+        self.ui.txtLateTime.setText(self.update_time_display(self.late_threshold))
         self.ui.actionEditLate.setText(str(self.late_threshold) + " minutes")
         self.dialog.done(0)
 
@@ -140,20 +143,23 @@ class mywindow(QtWidgets.QMainWindow):
         sys.exit()
 
     def onBtnLogin(self, event):
-        loginurl = self.bb_address + "/learn/api/public/v1/oauth2/token"
+        loginurl = "https://" + self.bb_address + "/learn/api/public/v1/oauth2/token"
+        print(loginurl)
         username = self.ui.txtUsername.text()
         password = self.ui.txtPassword.text()
         self.ui.txtUsername.clear()
         self.ui.txtPassword.clear()
         print(username, password)
 
-    def closeEvent(self, event):
-        with open("offline", "w") as f:
-            f.write(f"bb_address:{self.bb_address}\n")
-            f.write(f"late_threshold:{self.late_threshold}\n")
-            f.write(f"app_key:{self.app_key}\n")
-            f.write(f"app_id:{self.app_id}\n")
-            f.write(f"secret:{self.secret}\n")
+    def selectClass(self, event):
+        print(self.ui.comboClasses.currentText())
+
+    def uploadAttendance(self, event):
+        print("uploading")
+
+    def logout(self, event):
+        print("logging out")
+
 
 if __name__ == "__main__":
     app = QtWidgets.QApplication([])
