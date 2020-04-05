@@ -12,7 +12,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
-        MainWindow.setObjectName("MainWindow")
+        MainWindow.setObjectName("BBAttendanceTracker")
         MainWindow.resize(1739, 1467)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)
@@ -291,7 +291,7 @@ class Ui_MainWindow(object):
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
-        MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
+        MainWindow.setWindowTitle(_translate("BBAttendanceTracker", "BBAttendanceTracker"))
         self.txtUsername.setPlaceholderText(_translate("MainWindow", "User Name"))
         self.txtPassword.setPlaceholderText(_translate("MainWindow", "Password"))
         self.btnLogin.setText(_translate("MainWindow", "Login to Blackboard"))
@@ -299,7 +299,7 @@ class Ui_MainWindow(object):
         self.comboClasses.setItemText(1, _translate("MainWindow", "CS 380"))
         self.comboClasses.setItemText(2, _translate("MainWindow", "CS 450"))
         self.lblStartTime.setText(_translate("MainWindow", "Class Start Time"))
-        self.txtStartTime.setText(_translate("MainWindow", "1:50 PM"))
+        self.txtStartTime.setText(_translate("MainWindow", "10:50 AM"))
         self.lblLateTime.setText(_translate("MainWindow", "Class Late Time"))
         self.txtLateTime.setText(_translate("MainWindow", ""))
         self.lblEndTime.setText(_translate("MainWindow", "Class End Time"))
@@ -350,7 +350,7 @@ class Ui_MainWindow(object):
         item = self.tableWidget.item(1, 5)
         item.setText(_translate("MainWindow", "X"))
         self.tableWidget.setSortingEnabled(__sortingEnabled)
-        self.menuBBAttendanceTracker.setTitle(_translate("MainWindow", "BBAttendanceTracker"))
+        self.menuBBAttendanceTracker.setTitle(_translate("BBAttendanceTracker", "Settings"))
         self.menuBlackboard_Address.setTitle(_translate("MainWindow", "Blackboard Address"))
         self.menuLate_Threshold.setTitle(_translate("MainWindow", "Late Threshold"))
         self.actionQuit.setText(_translate("MainWindow", "Quit"))
