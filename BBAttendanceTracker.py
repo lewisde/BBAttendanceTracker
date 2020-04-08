@@ -1,7 +1,9 @@
 from PyQt5 import QtWidgets
 from PyQt5 import QtNetwork
 from PyQt5 import QtCore
-from PyQt5.QtWidgets import QDialog
+from PyQt5 import QtGui
+from PyQt5.QtWidgets import QDialog, QFontDialog
+from PyQt5.QtCore import QSettings
 
 from attendance import Ui_MainWindow
 # from dialog import Ui_Dialog
@@ -16,6 +18,7 @@ class mywindow(QtWidgets.QMainWindow):
 
     bb_address = ""
     late_threshold = 0
+    font = QtGui.QFont()
     app_key = ""
     secret = ""
     app_id = ""
@@ -38,28 +41,35 @@ class mywindow(QtWidgets.QMainWindow):
         self.ui.actionEditAddress.triggered.connect(self.Edit_BB_Address)
         self.ui.actionEditLate.triggered.connect(self.Edit_Late_Threshold)
         self.ui.actionQuit.triggered.connect(self.quit)
+        self.ui.actionEditFontSize.triggered.connect(self.Edit_Font_Size)
 
         with open("offline", "r") as f:
             d = {}
             a = []
-            for line in f.readlines():
+            for line in f.readlines()[:7]:
                 a = line.strip().split(":")
                 d[a[0]] = a[1]
         self.bb_address = d['bb_address']
         self.late_threshold = int(d["late_threshold"])
+        self.font = QtGui.QFont(d["font"])
+        self.font.setPointSize(int(d["font_size"]))
+        self.Set_Font(self.font)
         self.app_key = d["app_key"]
         self.app_id = d["app_id"]
         self.secret = d["secret"]
         self.ui.actionEditAddress.setText(self.bb_address)
         self.ui.actionEditLate.setText(str(self.late_threshold) + " minutes")
+        self.ui.actionEditFontSize.setText("Change Font")
         self.ui.txtLateTime.setText(
             self.update_time_display(self.late_threshold))
         self.ui.txtEndTime.setText(self.update_time_display(80))
 
     def closeEvent(self, event):
-        with open("offline", "w") as f:
+        with open("offline", "w+") as f:
             f.write(f"bb_address:{self.bb_address}\n")
             f.write(f"late_threshold:{self.late_threshold}\n")
+            f.write(f"font:{self.font.toString()}\n")
+            f.write(f"font_size:{self.font.pointSize()}\n")
             f.write(f"app_key:{self.app_key}\n")
             f.write(f"app_id:{self.app_id}\n")
             f.write(f"secret:{self.secret}\n")
@@ -87,6 +97,26 @@ class mywindow(QtWidgets.QMainWindow):
 
         time = f"{latehour}:{lateminute:02} {ampm}"
         return(time)
+
+    def Edit_Font_Size(self):
+        font, ok = QFontDialog.getFont(self.font)
+        self.font = font
+        self.Set_Font(font)
+
+    def Set_Font(self, font):
+        self.ui.txtUsername.setFont(font)
+        self.ui.txtPassword.setFont(font)
+        self.ui.btnLogin.setFont(font)
+        self.ui.comboClasses.setFont(font)
+        self.ui.lblStartTime.setFont(font)
+        self.ui.txtStartTime.setFont(font)
+        self.ui.lblLateTime.setFont(font)
+        self.ui.txtLateTime.setFont(font)
+        self.ui.lblEndTime.setFont(font)
+        self.ui.txtEndTime.setFont(font)
+        self.ui.btnSubmit.setFont(font)
+        self.ui.btnLogout.setFont(font)
+        self.ui.tableWidget.setFont(font)
 
     def Edit_BB_Address(self):
         self.dialog = QDialog(self)
@@ -140,6 +170,14 @@ class mywindow(QtWidgets.QMainWindow):
         self.dialog.done(0)
 
     def quit(self):
+        with open("offline", "w+") as f:
+            f.write(f"bb_address:{self.bb_address}\n")
+            f.write(f"late_threshold:{self.late_threshold}\n")
+            f.write(f"font:{self.font.toString()}\n")
+            f.write(f"font_size:{self.font.pointSize()}\n")            
+            f.write(f"app_key:{self.app_key}\n")
+            f.write(f"app_id:{self.app_id}\n")
+            f.write(f"secret:{self.secret}\n")
         sys.exit()
 
     def onBtnLogin(self, event):
@@ -151,14 +189,22 @@ class mywindow(QtWidgets.QMainWindow):
         self.ui.txtPassword.clear()
         print(username, password)
 
+        # get authorized classes and insert into comboClasses
+
     def selectClass(self, event):
         print(self.ui.comboClasses.currentText())
+
+        # get list of students from selected class and populate TableView
 
     def uploadAttendance(self, event):
         print("uploading")
 
+        # repackage tableview data and update BB
+
     def logout(self, event):
         print("logging out")
+
+        # return token?
 
 
 if __name__ == "__main__":
