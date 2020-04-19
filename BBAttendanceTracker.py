@@ -8,6 +8,8 @@ from PyQt5.QtCore import QSettings
 from attendance import Ui_MainWindow
 # from dialog import Ui_Dialog
 
+import loginDialog
+
 from datetime import datetime
 from datetime import timedelta
 import sys
@@ -22,6 +24,13 @@ class mywindow(QtWidgets.QMainWindow):
     app_key = ""
     secret = ""
     app_id = ""
+    dialog = ""
+
+    auth_path = "/learn/api/public/v1/oauth2/token"
+    dsk_path = "/learn/api/public/v1/dataSources"
+    term_path = "/learn/api/public/v1/terms"
+    course_path = "/learn/api/public/v1/courses"
+    user_path = "/learn/api/public/v1/users"
 
     def __init__(self):
         super(mywindow, self).__init__()
@@ -65,8 +74,8 @@ class mywindow(QtWidgets.QMainWindow):
         self.ui.txtEndTime.setText(self.update_time_display(80))
 
     def closeEvent(self, event):
-        with open("offline", "w+") as f:
-            f.write(f"bb_address:{self.bb_address}\n")
+        with open("offline", "w") as f:
+            f.write(f"bb_address:{self.bb_address}\n") 
             f.write(f"late_threshold:{self.late_threshold}\n")
             f.write(f"font:{self.font.toString()}\n")
             f.write(f"font_size:{self.font.pointSize()}\n")
@@ -104,10 +113,7 @@ class mywindow(QtWidgets.QMainWindow):
         self.Set_Font(font)
 
     def Set_Font(self, font):
-        self.ui.txtUsername.setFont(font)
-        self.ui.txtPassword.setFont(font)
         self.ui.btnLogin.setFont(font)
-        self.ui.comboClasses.setFont(font)
         self.ui.lblStartTime.setFont(font)
         self.ui.txtStartTime.setFont(font)
         self.ui.lblLateTime.setFont(font)
@@ -117,6 +123,9 @@ class mywindow(QtWidgets.QMainWindow):
         self.ui.btnSubmit.setFont(font)
         self.ui.btnLogout.setFont(font)
         self.ui.tableWidget.setFont(font)
+        font.setPointSize(font.pointSize() - 1)
+        self.ui.comboClasses.setFont(font)
+        font.setPointSize(font.pointSize() + 1)
 
     def Edit_BB_Address(self):
         self.dialog = QDialog(self)
@@ -170,7 +179,7 @@ class mywindow(QtWidgets.QMainWindow):
         self.dialog.done(0)
 
     def quit(self):
-        with open("offline", "w+") as f:
+        with open("offline", "w") as f:
             f.write(f"bb_address:{self.bb_address}\n")
             f.write(f"late_threshold:{self.late_threshold}\n")
             f.write(f"font:{self.font.toString()}\n")
@@ -181,15 +190,45 @@ class mywindow(QtWidgets.QMainWindow):
         sys.exit()
 
     def onBtnLogin(self, event):
-        loginurl = "https://" + self.bb_address + "/learn/api/public/v1/oauth2/token"
-        print(loginurl)
-        username = self.ui.txtUsername.text()
-        password = self.ui.txtPassword.text()
-        self.ui.txtUsername.clear()
-        self.ui.txtPassword.clear()
-        print(username, password)
+        self.dialog = QDialog(self)
+        self.dialog.buttonBox = QtWidgets.QDialogButtonBox(self.dialog)
+        self.dialog.buttonBox.setGeometry(QtCore.QRect(0, 100, 340, 32))
+        self.dialog.buttonBox.setOrientation(QtCore.Qt.Horizontal)
+        self.dialog.buttonBox.setStandardButtons(
+            QtWidgets.QDialogButtonBox.Cancel | QtWidgets.QDialogButtonBox.Ok)
+        self.dialog.buttonBox.setObjectName("buttonBox")
+        self.txtUsername = QtWidgets.QLineEdit(self.dialog)
+        self.txtUsername.setGeometry(QtCore.QRect(30, 20, 271, 21))
+        self.txtUsername.setFont(self.font)
+        self.txtUsername.setObjectName("txtUsername")
+        self.txtUsername.setPlaceholderText("User Name")
+        self.txtPassword = QtWidgets.QLineEdit(self.dialog)
+        self.txtPassword.setGeometry(QtCore.QRect(30, 50, 271, 21))
+        self.txtPassword.setFont(self.font)
+        self.txtPassword.setInputMethodHints(
+            QtCore.Qt.ImhHiddenText|QtCore.Qt.ImhNoAutoUppercase|
+            QtCore.Qt.ImhNoPredictiveText|QtCore.Qt.ImhSensitiveData)
+        self.txtPassword.setEchoMode(QtWidgets.QLineEdit.Password)
+        self.txtPassword.setObjectName("txtPassword")
+        self.txtPassword.setPlaceholderText("Password")
+        self.dialog.buttonBox.accepted.connect(self.processLogin)
+        self.dialog.buttonBox.rejected.connect(self.PassReject)
+        QtCore.QMetaObject.connectSlotsByName(self.dialog)
+        self.dialog.show()
 
-        # get authorized classes and insert into comboClasses
+
+    def processLogin(self):
+        # loginurl = "https://" + self.bb_address + self.auth_path
+        # print(loginurl)
+        username = self.txtUsername.text()
+        password = self.txtPassword.text()
+        # self.ui.txtUsername.clear()
+        # self.ui.txtPassword.clear()
+        print(username, password)
+        self.dialog.done(0)
+
+    def PassReject(self):
+        self.dialog.done(1)
 
     def selectClass(self, event):
         print(self.ui.comboClasses.currentText())
